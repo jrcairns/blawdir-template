@@ -32,7 +32,7 @@ function titleCase(str: string): string {
 
 async function load(): Promise<LoadResult | null> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${process.env.NEXT_PUBLIC_APP_NAME}`)
+    const res = await fetch(`https://mapmind-seven.vercel.app/api/v1/${process.env.NEXT_PUBLIC_APP_NAME}`)
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`)
     }
