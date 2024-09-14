@@ -72,7 +72,10 @@ function titleCase(str: string): string {
 
 async function load(): Promise<LoadResult | null> {
   try {
-    const res = await fetch(`http://localhost:3000/api/v1/${process.env.NEXT_PUBLIC_PROJECT_ID}`)
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? 'https://mapmind-seven.vercel.app'
+      : 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/v1/${process.env.NEXT_PUBLIC_PROJECT_ID}`)
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`)
     }
@@ -122,6 +125,8 @@ export default async function Home() {
   const page = data?.page || {};
   const places = data?.results || [];
   const query = data?.query || "";
+
+  console.log(data)
 
   return (
     <div className="min-h-screen bg-white">
