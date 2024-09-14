@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceList } from '@/components/place-list';
 
-export const revalidate = 0;
+// export const revalidate = 0;
 
 interface Place {
   name: string;
@@ -84,7 +84,7 @@ async function load(): Promise<LoadResult | null> {
   }
 }
 
-export default async function Home() {
+export default function Home() {
   // const data = await load();
   // const page = data?.page || {};
   // const places = data?.results || [];
