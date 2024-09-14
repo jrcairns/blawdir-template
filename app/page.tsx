@@ -72,10 +72,7 @@ function titleCase(str: string): string {
 
 async function load(): Promise<LoadResult | null> {
   try {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? 'https://mapmind-seven.vercel.app'
-      : 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/v1/${process.env.NEXT_PUBLIC_PROJECT_ID}`)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/${process.env.NEXT_PUBLIC_PROJECT_ID}`)
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`)
     }
@@ -87,46 +84,15 @@ async function load(): Promise<LoadResult | null> {
   }
 }
 
-// Mock page object (you can replace this with actual data fetching later)
-// const mockPage: Page = {
-//   logo: { url: '/logo.svg' },
-//   navigation: {
-//     links: [
-//       { label: 'Home', url: '/' },
-//       { label: 'About', url: '/about' },
-//       { label: 'Contact', url: '/contact' },
-//     ],
-//   },
-//   hero: {
-//     title: 'Discover Amazing Places',
-//     description: 'Find the best locations for your next adventure.',
-//     image: { url: '/hero-image.jpg' },
-//   },
-//   cta: {
-//     title: 'Ready to Explore?',
-//     description: 'Sign up now and get exclusive access to our curated list of destinations.',
-//     image: { url: '/cta-image.jpg' },
-//   },
-//   faqs: [
-//     { question: 'How do I book a place?', answer: 'You can book a place by clicking the "Book Now" button on the place profile card.' },
-//     { question: 'Are the ratings verified?', answer: 'Yes, all ratings and reviews are from verified customers who have visited the place.' },
-//   ],
-//   footer: {
-//     description: 'Discover amazing places around the world with our curated selection of destinations.',
-//     links: [
-//       { label: 'Privacy Policy', url: '/privacy' },
-//       { label: 'Terms of Service', url: '/terms' },
-//     ],
-//   },
-// };
-
 export default async function Home() {
-  const data = await load();
-  const page = data?.page || {};
-  const places = data?.results || [];
-  const query = data?.query || "";
+  // const data = await load();
+  // const page = data?.page || {};
+  // const places = data?.results || [];
+  // const query = data?.query || "";
 
-  console.log(data)
+  // console.log(data)
+
+  return <div>hello world</div>
 
   return (
     <div className="min-h-screen bg-white">
