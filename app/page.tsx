@@ -1,7 +1,10 @@
-import Image from "next/image";
-import { StarIcon, MapPinIcon, PhoneIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
+// @ts-nocheck
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import Link from 'next/link';
+import { PlaceList } from '@/components/place-list';
 
-export const revalidate = 86_400;
+export const revalidate = 0;
 
 interface Place {
   name: string;
@@ -13,17 +16,54 @@ interface Place {
   formatted_address: string;
   formatted_phone_number?: string;
   website?: string;
+  isBoosted?: boolean;
   reviews?: Array<{
     text: string;
     author_name: string;
   }>;
 }
 
-interface LoadResult {
-  data?: {
-    results: Place[];
-    query: string;
+interface Page {
+  logo: {
+    url: string;
   };
+  navigation: {
+    links: {
+      label: string;
+      url: string;
+    }[];
+  };
+  hero: {
+    title: string;
+    description: string;
+    image: {
+      url: string;
+    };
+  };
+  cta: {
+    title: string;
+    description: string;
+    image: {
+      url: string;
+    };
+  };
+  faqs: {
+    question: string;
+    answer: string;
+  }[];
+  footer: {
+    description: string;
+    links: {
+      label: string;
+      url: string;
+    }[];
+  };
+}
+
+interface LoadResult {
+  results: Place[];
+  query: string;
+  page: Page
 }
 
 function titleCase(str: string): string {
@@ -32,7 +72,7 @@ function titleCase(str: string): string {
 
 async function load(): Promise<LoadResult | null> {
   try {
-    const res = await fetch(`https://mapmind-seven.vercel.app/api/v1/${process.env.NEXT_PUBLIC_APP_NAME}`)
+    const res = await fetch(`http://localhost:3000/api/v1/${process.env.NEXT_PUBLIC_PROJECT_ID}`)
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`)
     }
@@ -44,77 +84,178 @@ async function load(): Promise<LoadResult | null> {
   }
 }
 
+// Mock page object (you can replace this with actual data fetching later)
+// const mockPage: Page = {
+//   logo: { url: '/logo.svg' },
+//   navigation: {
+//     links: [
+//       { label: 'Home', url: '/' },
+//       { label: 'About', url: '/about' },
+//       { label: 'Contact', url: '/contact' },
+//     ],
+//   },
+//   hero: {
+//     title: 'Discover Amazing Places',
+//     description: 'Find the best locations for your next adventure.',
+//     image: { url: '/hero-image.jpg' },
+//   },
+//   cta: {
+//     title: 'Ready to Explore?',
+//     description: 'Sign up now and get exclusive access to our curated list of destinations.',
+//     image: { url: '/cta-image.jpg' },
+//   },
+//   faqs: [
+//     { question: 'How do I book a place?', answer: 'You can book a place by clicking the "Book Now" button on the place profile card.' },
+//     { question: 'Are the ratings verified?', answer: 'Yes, all ratings and reviews are from verified customers who have visited the place.' },
+//   ],
+//   footer: {
+//     description: 'Discover amazing places around the world with our curated selection of destinations.',
+//     links: [
+//       { label: 'Privacy Policy', url: '/privacy' },
+//       { label: 'Terms of Service', url: '/terms' },
+//     ],
+//   },
+// };
+
 export default async function Home() {
   const data = await load();
-  const places = data?.data?.results || [];
-  const query = data?.data?.query || "";
+  const page = data?.page || {};
+  const places = data?.results || [];
+  const query = data?.query || "";
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">{titleCase(query)}</h1>
-        </div>
-      </header>
-      <main>
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {places.map((place: Place, index: number) => (
-              <div key={index} className="bg-white overflow-hidden shadow-sm rounded-lg">
-                <div className="p-6">
-                  <div className="flex items-center">
-                    {place.photo && (
-                      <Image
-                        src={place.photo.url}
-                        alt={place.name}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-full mr-4"
-                      />
-                    )}
-                    <div>
-                      <h2 className="text-xl font-semibold text-gray-900">{place.name}</h2>
-                      <div className="flex items-center mt-1">
-                        <StarIcon className="h-5 w-5 text-yellow-400" />
-                        <span className="ml-1 text-sm text-gray-600">{place.rating} ({place.user_ratings_total} reviews)</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-sm text-gray-500 flex items-center">
-                      <MapPinIcon className="h-4 w-4 mr-1" />
-                      {place.formatted_address}
-                    </p>
-                    {place.formatted_phone_number && (
-                      <p className="text-sm text-gray-500 flex items-center mt-1">
-                        <PhoneIcon className="h-4 w-4 mr-1" />
-                        {place.formatted_phone_number}
-                      </p>
-                    )}
-                    {place.website && (
-                      <a
-                        href={place.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center mt-1"
-                      >
-                        <GlobeAltIcon className="h-4 w-4 mr-1" />
-                        Visit Website
-                      </a>
-                    )}
-                  </div>
-                  {place.reviews && place.reviews.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-700 italic">&apos;{place.reviews[0].text.slice(0, 100)}...&apos;</p>
-                      <p className="text-xs text-gray-500 mt-1">- {place.reviews[0].author_name}</p>
-                    </div>
-                  )}
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      {page.logo && page.navigation && (
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex justify-between items-center">
+              {page.logo.url && (
+                <div className="h-8 w-auto relative">
+                  {/* Replace <img> with <Image> */}
+                  <Image src={page.logo.url} alt="Logo" width={32} height={32} className="h-full w-auto" />
                 </div>
-              </div>
-            ))}
+              )}
+              {page.navigation.links && page.navigation.links.length > 0 && (
+                <nav>
+                  <ul className="flex space-x-4">
+                    {page.navigation.links.map((link, index) => (
+                      <li key={index}>
+                        <Link href={link.url} className="text-gray-600 hover:text-gray-900">
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        </header>
+      )}
+
+      {/* Hero Section */}
+      {page.hero && (
+        <section className="text-white relative">
+          <Image
+            src={places.find((place) => place?.isBoosted)?.photo?.url || page.hero.image.url}
+            alt="Hero"
+            width={600}
+            height={400}
+            className="rounded-lg absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-indigo-950/80"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex items-center relative">
+            <div>
+              <h1 className="text-2xl lg:text-3xl mb-4">{page.hero.title}</h1>
+              <p className="mb-8">{page.hero.description}</p>
+              <Button>
+                Get Started
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Results List Section */}
+      {places.length > 0 && (
+        <main className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-semibold mb-8">{titleCase(query)}</h2>
+            <PlaceList initialPlaces={places} />
+          </div>
+        </main>
+      )}
+
+      {/* CTA Section */}
+      {page.cta && (
+        <section className="bg-gray-100 py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+            <div className="w-1/2 pr-8">
+              <h2 className="text-3xl font-bold mb-4">{page.cta.title}</h2>
+              <p className="text-xl mb-8">{page.cta.description}</p>
+              <button className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors">
+                Sign Up Now
+              </button>
+            </div>
+            {page.cta.image && (
+              <div className="w-1/2">
+                <Image src={page.cta.image.url} alt="CTA" width={600} height={400} className="rounded-lg" />
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* FAQ Section */}
+      {page.faqs && page.faqs.length > 0 && (
+        <section className="py-16 bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+            <div className="space-y-8">
+              {page.faqs.map((faq, index) => (
+                <div key={index} className="bg-gray-100 p-6 rounded-lg">
+                  <h3 className="text-xl font-semibold mb-2">{faq.question}</h3>
+                  <p className="text-gray-600">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Footer */}
+      {page.footer && (
+        <footer className="bg-gray-800 text-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                {page.logo && (
+                  <Image src={page.logo.url} alt="Logo" width={120} height={40} className="mb-4" />
+                )}
+                <p className="text-gray-300">{page.footer.description}</p>
+              </div>
+              {page.footer.links && page.footer.links.length > 0 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+                  <ul className="space-y-2">
+                    {page.footer.links.map((link, index) => (
+                      <li key={index}>
+                        <Link href={link.url} className="text-gray-300 hover:text-white">
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="mt-8 pt-8 border-t border-gray-700 text-center">
+              <p className="text-gray-300">&copy; 2023 Your Company. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }
